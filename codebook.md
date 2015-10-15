@@ -1,0 +1,310 @@
+Introduction
+------------
+
+The purpose of this project is to demonstrate the ability to collect,
+work with, and clean a data set. The goal is to prepare tidy data that
+can be used for later analysis. As a result of this analysis, the input
+data are transformed to two new tidy datasets. This Codebook describes
+the input data and the process to transform the data.
+
+The data that is analyzed comes from the are of wearable computing. This
+is one of the most exciting areas in all of data science right now.
+Companies like Fitbit, Nike, and Jawbone Up are racing to develop the
+most advanced algorithms to attract new users. The data represent data
+collected from the accelerometers from the Samsung Galaxy S smartphone.
+
+Data description
+----------------
+
+### Data Source
+
+The data files that we will be using for this analysis can be found
+here:
+
+<https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip>
+
+A full description is available at the site where the data was obtained:
+
+<http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones>
+
+### Some background on the input data
+
+Some background on the input data and how they were obtained and
+preprocessed:
+
+The experiments have been carried out with a group of 30 volunteers
+within an age bracket of 19-48 years. Each person performed six
+activities (WALKING, WALKING\_UPSTAIRS, WALKING\_DOWNSTAIRS, SITTING,
+STANDING, LAYING) wearing a smartphone (Samsung Galaxy S II) on the
+waist. Using its embedded accelerometer and gyroscope, we captured
+3-axial linear acceleration and 3-axial angular velocity at a constant
+rate of 50Hz. The experiments have been video-recorded to label the data
+manually. The obtained dataset has been randomly partitioned into two
+sets, where 70% of the volunteers was selected for generating the
+training data and 30% the test data.
+
+The sensor signals (accelerometer and gyroscope) were pre-processed by
+applying noise filters and then sampled in fixed-width sliding windows
+of 2.56 sec and 50% overlap (128 readings/window). From each window, a
+vector of features was obtained by calculating variables from the time
+and frequency domain. See 'features\_info.txt' for more details.
+
+### More detail on the input data
+
+The zip archive contains a number of files: data files and explanatory
+files. I refer to the explanatory files for more detail. In particular
+the readme.txt file and features\_info.txt contain detailed information.
+
+I will now give a summary that is specific to this subsequent data
+analysis. The following files are used:
+
+Two files containing feature names and class labels respectively:
+
+-   'features.txt': List of all features.
+-   'activity\_labels.txt': Links the class labels with their activity
+    name.
+
+Six files containing data, three training data sets and three test data
+sets.
+
+-   'train/X\_train.txt': Training set.
+-   'train/y\_train.txt': Training labels.
+-   'train/subject\_train.txt': Each row identifies the subject who
+    performed the activity for each window sample. Its range is from 1
+    to 30.
+-   'test/X\_test.txt': Test set.
+-   'test/y\_test.txt': Test labels.
+-   'test/subject\_train.txt': Each row identifies the subject who
+    performed the activity for each window sample. Its range is from 1
+    to 30.
+
+For this analysis we will be using a subset of the features in x\_train
+(and x\_test): namely only the features that correspond to a mean or
+standard deviation of the original data measurements.
+
+A few last notes:
+
+-   Features are normalized and bounded within [-1,1].
+-   Each feature vector is a row on the text file.
+
+### Feature definitions
+
+The following was taken from the file features\_info.txt and gives
+detailed information on the individual features in the data:
+
+The features selected for this database come from the accelerometer and
+gyroscope 3-axial raw signals tAcc-XYZ and tGyro-XYZ. These time domain
+signals (prefix 't' to denote time) were captured at a constant rate of
+50 Hz. Then they were filtered using a median filter and a 3rd order low
+pass Butterworth filter with a corner frequency of 20 Hz to remove
+noise. Similarly, the acceleration signal was then separated into body
+and gravity acceleration signals (tBodyAcc-XYZ and tGravityAcc-XYZ)
+using another low pass Butterworth filter with a corner frequency of 0.3
+Hz.
+
+Subsequently, the body linear acceleration and angular velocity were
+derived in time to obtain Jerk signals (tBodyAccJerk-XYZ and
+tBodyGyroJerk-XYZ). Also the magnitude of these three-dimensional
+signals were calculated using the Euclidean norm (tBodyAccMag,
+tGravityAccMag, tBodyAccJerkMag, tBodyGyroMag, tBodyGyroJerkMag).
+
+Finally a Fast Fourier Transform (FFT) was applied to some of these
+signals producing fBodyAcc-XYZ, fBodyAccJerk-XYZ, fBodyGyro-XYZ,
+fBodyAccJerkMag, fBodyGyroMag, fBodyGyroJerkMag. (Note the 'f' to
+indicate frequency domain signals).
+
+These signals were used to estimate variables of the feature vector for
+each pattern:  
+'-XYZ' is used to denote 3-axial signals in the X, Y and Z directions.
+
+-tBodyAcc-XYZ -tGravityAcc-XYZ -tBodyAccJerk-XYZ -tBodyGyro-XYZ -tBodyGyroJerk-XYZ -tBodyAccMag -tGravityAccMag -tBodyAccJerkMag -tBodyGyroMag -tBodyGyroJerkMag -fBodyAcc-XYZ -fBodyAccJerk-XYZ -fBodyGyro-XYZ -fBodyAccMag -fBodyAccJerkMag -fBodyGyroMag -fBodyGyroJerkMag
+
+The set of variables that were estimated from these signals are:
+
+-mean(): Mean value -std(): Standard deviation -mad(): Median absolute
+deviation -max(): Largest value in array -min(): Smallest value in
+array -sma(): Signal magnitude area -energy(): Energy measure. Sum of
+the squares divided by the number of values. -iqr(): Interquartile
+range -entropy(): Signal entropy -arCoeff(): Autorregresion coefficients
+with Burg order equal to 4 -correlation(): correlation coefficient
+between two signals -maxInds(): index of the frequency component with
+largest magnitude -meanFreq(): Weighted average of the frequency
+components to obtain a mean frequency -skewness(): skewness of the
+frequency domain signal -kurtosis(): kurtosis of the frequency domain
+signal -bandsEnergy(): Energy of a frequency interval within the 64 bins
+of the FFT of each window. -angle(): Angle between to vectors.
+
+Additional vectors obtained by averaging the signals in a signal window
+sample. These are used on the angle() variable:
+
+-gravityMean -tBodyAccMean -tBodyAccJerkMean -tBodyGyroMean -tBodyGyroJerkMean
+
+The complete list of variables of each feature vector is available in
+'features.txt'
+
+Reading the input data
+----------------------
+
+We have already downloaded the zip file and extracted it in our working
+directory. All data are in a subfolder.
+
+### Reading the activity names and feature names
+
+Now, we will read the activity names first.
+
+    wd <- getwd()
+    datapath <- file.path(wd, "UCI HAR Dataset" )
+
+    filename <- "activity_labels.txt"
+    actNames <-read.table(file.path(datapath, filename),col.names = c("ActivityId", "ActivityName"))
+
+Next, we are going to read the feature names:
+
+    filename <- "features.txt"
+    features <-read.table(file.path(datapath, filename),col.names = c("VarId", "VarName"))
+    featureNames <- as.character(features$VarName)
+
+We will now select the subset of features that correspond to a mean or
+st. deviation. We do this by using regular expressions applied to the
+feature names:
+
+    meanFNames <- featureNames[sapply(featureNames, regexpr, pattern = "mean") > 0]
+    stdFNames <- featureNames[sapply(featureNames, regexpr, pattern = "std") > 0]
+    selectedFNames <- c(meanFNames , stdFNames)
+
+We tidy up the names of the features by removing the "()" in the names:
+
+    tidyFNames <- sub(pattern = "\\(\\)", replacement = "", x = selectedFNames)
+    length(tidyFNames)
+
+    ## [1] 79
+
+We are now left with the following feature names:
+
+    tidyFNames
+
+    ##  [1] "tBodyAcc-mean-X"               "tBodyAcc-mean-Y"              
+    ##  [3] "tBodyAcc-mean-Z"               "tGravityAcc-mean-X"           
+    ##  [5] "tGravityAcc-mean-Y"            "tGravityAcc-mean-Z"           
+    ##  [7] "tBodyAccJerk-mean-X"           "tBodyAccJerk-mean-Y"          
+    ##  [9] "tBodyAccJerk-mean-Z"           "tBodyGyro-mean-X"             
+    ## [11] "tBodyGyro-mean-Y"              "tBodyGyro-mean-Z"             
+    ## [13] "tBodyGyroJerk-mean-X"          "tBodyGyroJerk-mean-Y"         
+    ## [15] "tBodyGyroJerk-mean-Z"          "tBodyAccMag-mean"             
+    ## [17] "tGravityAccMag-mean"           "tBodyAccJerkMag-mean"         
+    ## [19] "tBodyGyroMag-mean"             "tBodyGyroJerkMag-mean"        
+    ## [21] "fBodyAcc-mean-X"               "fBodyAcc-mean-Y"              
+    ## [23] "fBodyAcc-mean-Z"               "fBodyAcc-meanFreq-X"          
+    ## [25] "fBodyAcc-meanFreq-Y"           "fBodyAcc-meanFreq-Z"          
+    ## [27] "fBodyAccJerk-mean-X"           "fBodyAccJerk-mean-Y"          
+    ## [29] "fBodyAccJerk-mean-Z"           "fBodyAccJerk-meanFreq-X"      
+    ## [31] "fBodyAccJerk-meanFreq-Y"       "fBodyAccJerk-meanFreq-Z"      
+    ## [33] "fBodyGyro-mean-X"              "fBodyGyro-mean-Y"             
+    ## [35] "fBodyGyro-mean-Z"              "fBodyGyro-meanFreq-X"         
+    ## [37] "fBodyGyro-meanFreq-Y"          "fBodyGyro-meanFreq-Z"         
+    ## [39] "fBodyAccMag-mean"              "fBodyAccMag-meanFreq"         
+    ## [41] "fBodyBodyAccJerkMag-mean"      "fBodyBodyAccJerkMag-meanFreq" 
+    ## [43] "fBodyBodyGyroMag-mean"         "fBodyBodyGyroMag-meanFreq"    
+    ## [45] "fBodyBodyGyroJerkMag-mean"     "fBodyBodyGyroJerkMag-meanFreq"
+    ## [47] "tBodyAcc-std-X"                "tBodyAcc-std-Y"               
+    ## [49] "tBodyAcc-std-Z"                "tGravityAcc-std-X"            
+    ## [51] "tGravityAcc-std-Y"             "tGravityAcc-std-Z"            
+    ## [53] "tBodyAccJerk-std-X"            "tBodyAccJerk-std-Y"           
+    ## [55] "tBodyAccJerk-std-Z"            "tBodyGyro-std-X"              
+    ## [57] "tBodyGyro-std-Y"               "tBodyGyro-std-Z"              
+    ## [59] "tBodyGyroJerk-std-X"           "tBodyGyroJerk-std-Y"          
+    ## [61] "tBodyGyroJerk-std-Z"           "tBodyAccMag-std"              
+    ## [63] "tGravityAccMag-std"            "tBodyAccJerkMag-std"          
+    ## [65] "tBodyGyroMag-std"              "tBodyGyroJerkMag-std"         
+    ## [67] "fBodyAcc-std-X"                "fBodyAcc-std-Y"               
+    ## [69] "fBodyAcc-std-Z"                "fBodyAccJerk-std-X"           
+    ## [71] "fBodyAccJerk-std-Y"            "fBodyAccJerk-std-Z"           
+    ## [73] "fBodyGyro-std-X"               "fBodyGyro-std-Y"              
+    ## [75] "fBodyGyro-std-Z"               "fBodyAccMag-std"              
+    ## [77] "fBodyBodyAccJerkMag-std"       "fBodyBodyGyroMag-std"         
+    ## [79] "fBodyBodyGyroJerkMag-std"
+
+### Reading the test and training data
+
+The training and test feature data are fixed width files with 16 cols
+per variable. In order to read only the relevant features, we prepare a
+width vector that contains positive and negative widths for variables
+that we want to read and skip respectively.
+
+    widthvector <- 16 * (2 *(featureNames %in% selectedFNames)-1)
+
+Now we will read the three training files:
+
+    path <- file.path(datapath, "Train" )
+    filename <- "X_train.txt"
+    train_raw <- read.fwf(file.path(path, filename), width = widthvector, buffersize = 100, col.names = tidyFNames )
+    filename <- "y_train.txt"
+    train_y <- read.table(file.path(path, filename), col.names =c("ActivityId"))
+    filename <- "subject_train.txt"
+    train_subj <- read.table(file.path(path, filename), col.names = c("SubjectId"))
+
+And we read the three test files:
+
+    path <- file.path(datapath, "Test" )
+    filename <- "X_test.txt"
+    test_raw <-  read.fwf(file.path(path, filename), width = widthvector, buffersize = 100, col.names = tidyFNames  )
+    filename <- "y_test.txt"
+    test_y <- read.table(file.path(path, filename), col.names =c("ActivityId"))
+    filename <- "subject_test.txt"
+    test_subj <- read.table(file.path(path, filename),col.names = c("SubjectId"))
+
+We have given appropriate column names to all the variables: we have
+used the feature names that we created before and we have used
+ActivityId and SubjectId for the variables in the y and subject files
+respectively.
+
+Merging the data
+----------------
+
+We will merge the data by first combining the features and the
+ActivityId and SubjectId variables for both test and train. Subsequently
+we merge the train and test data to one data set. This can be done in
+one statement:
+
+    totaldata <- rbind( cbind(train_raw, train_y, train_subj), cbind(test_raw, test_y, test_subj) )
+
+We will now also join the activity name to the dataset:
+
+    totaldata <- merge(totaldata, actNames, by.x = "ActivityId" , by.y = "ActivityId")
+
+Creating the dataset with mean variables per activity and per subject
+---------------------------------------------------------------------
+
+### Calculating the mean per subjectId and ActivityId
+
+We are now in good shape to create a dataset that contains the mean of
+each feature, grouped by subjectId and by ActivityId. We will use the
+aggregate function in R and sort it afterwards. We will show the first 5
+rows and columns.
+
+    cols <- colnames(totaldata)
+    cols <- cols[!cols %in% c("ActivityName","SubjectId")] 
+    meanDataPerActivitySubject <- aggregate(x = totaldata[cols], 
+                      by = list( ActivityName = totaldata$ActivityName, SubjectId = totaldata$SubjectId), 
+                      FUN = mean)
+
+    meanDataPerActivitySubject <- meanDataPerActivitySubject[order(meanDataPerActivitySubject$ActivityName, 
+                                                                   meanDataPerActivitySubject$SubjectId),]
+    meanDataPerActivitySubject[1:5][1:5,]
+
+    ##    ActivityName SubjectId ActivityId tBodyAcc.mean.X tBodyAcc.mean.Y
+    ## 1        LAYING         1          6       0.2215982     -0.04051395
+    ## 7        LAYING         2          6       0.2813734     -0.01815874
+    ## 13       LAYING         3          6       0.2755169     -0.01895568
+    ## 19       LAYING         4          6       0.2635592     -0.01500318
+    ## 25       LAYING         5          6       0.2783343     -0.01830421
+
+### Writing the tidy datasets to files
+
+We will now write the two tidy datasets to files:
+
+    filename <- "tidyMeanData.txt"
+    write.table(x = meanDataPerActivitySubject , filename, quote = F, row.names = F )
+
+    filename <- "tidyTotalData.txt"
+    write.table(x = totaldata , filename, quote = F, row.names = F )
