@@ -1,6 +1,6 @@
 
 
-setwd("C:/Users/MarkPetra/git/GetingCleaningData_CourseProject")
+#setwd("C:/Users/MarkPetra/git/GetingCleaningData_CourseProject")
 wd <- getwd()
 datapath <- file.path(wd, "UCI HAR Dataset" )
 
@@ -17,12 +17,12 @@ actNames <-read.table(file.path(datapath, filename),col.names = c("ActivityId", 
 
 #we extract the featurenames that are related to the mean or std
 #we do this by extracting names that contain "mean()" or "std()"
-meanFNames <- featureNames[sapply(featureNames, regexpr, pattern = "mean\\(\\)") > 0]
-stdFNames <- featureNames[sapply(featureNames, regexpr, pattern = "std\\(\\)") > 0]
+meanFNames <- featureNames[sapply(featureNames, regexpr, pattern = "mean") > 0]
+stdFNames <- featureNames[sapply(featureNames, regexpr, pattern = "std") > 0]
 selectedFNames <- c(meanFNames , stdFNames)
 #remove the () in the names to make it cleaner
-selectedFNames <- sub(pattern = "\\(\\)", replacement = "", x = selectedFNames)
-length(selectedFNames)
+tidyFNames <- sub(pattern = "\\(\\)", replacement = "", x = selectedFNames)
+length(tidyFNames)
 
 #we create a vector to be used to only readin these col names from the train and test data files
 #these files are fixed width files with 16 cols per variable
@@ -33,7 +33,7 @@ path <- file.path(datapath, "Train" )
 
 filename <- "X_train.txt"
 train_raw <- read.fwf(file.path(path, filename), width = widthvector, 
-                      buffersize = 100, col.names = selectedFNames )
+                      buffersize = 100, col.names = tidyFNames )
 filename <- "y_train.txt"
 train_y <- read.table(file.path(path, filename), col.names =c("ActivityId"))
 filename <- "subject_train.txt"
@@ -44,7 +44,7 @@ path <- file.path(datapath, "Test" )
 
 filename <- "X_test.txt"
 test_raw <-  read.fwf(file.path(path, filename), width = widthvector, 
-                     buffersize = 100, col.names = selectedFNames )
+                     buffersize = 100, col.names = tidyFNames )
 filename <- "y_test.txt"
 test_y <- read.table(file.path(path, filename), col.names =c("ActivityId"))
 filename <- "subject_test.txt"
@@ -56,11 +56,13 @@ test_subj <- read.table(file.path(path, filename),col.names = c("SubjectId"))
 
 totaldata <- rbind( cbind(train_raw, train_y, train_subj), cbind(test_raw, test_y, test_subj) )
 #joining the activityNames to it
-totaldata <- merge(totaldata, actNames, by.x = "ActivityId" , by.y = "ActivityId")
+totaldata <- merge(totaldata, actNames, by = "ActivityId")
 
 ## From the totaldata set, we create a second, independent tidy data set with 
 #the average of each variable for each activity and each subject.
-meanDataPerActivitySubject <- aggregate(x = totaldata[,colnames(totaldata) %in% selectedFNames], 
+cols <- colnames(totaldata)
+cols <- cols[!cols %in% c("ActivityName","SubjectId")] 
+meanDataPerActivitySubject <- aggregate(x = totaldata[cols], 
                   by = list( ActivityName = totaldata$ActivityName, SubjectId = totaldata$SubjectId), 
                   FUN = mean)
 
@@ -73,3 +75,5 @@ write.table(x = meanDataPerActivitySubject , filename, quote = F, row.names = F 
 #also Write total dataset to a file
 filename <- "tidyTotalData.txt"
 write.table(x = totaldata , filename, quote = F, row.names = F )
+
+
