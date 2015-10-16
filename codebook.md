@@ -3,9 +3,13 @@ Introduction
 
 The purpose of this project is to demonstrate the ability to collect,
 work with, and clean a data set. The goal is to prepare tidy data that
-can be used for later analysis. As a result of this analysis, the input
-data are transformed to two new tidy datasets. This Codebook describes
-the input data and the process to transform the data.
+can be used for later analysis. As a result of this analysis, input data
+files are transformed to two new tidy datasets. This Codebook describes:
+
+-   the input data
+-   the process to transform the data (for a more detailed description,
+    we refer to the analysis.md file)
+-   the tidy data
 
 The data that is analyzed comes from the are of wearable computing. This
 is one of the most exciting areas in all of data science right now.
@@ -13,8 +17,8 @@ Companies like Fitbit, Nike, and Jawbone Up are racing to develop the
 most advanced algorithms to attract new users. The data represent data
 collected from the accelerometers from the Samsung Galaxy S smartphone.
 
-Data description
-----------------
+Input Data description
+----------------------
 
 ### Data Source
 
@@ -170,169 +174,206 @@ sample. These are used on the angle() variable:
 The complete list of variables of each feature vector is available in
 'features.txt'
 
-Reading the input data
-----------------------
+Description of the final two tidy datasets
+------------------------------------------
 
-We have already downloaded the zip file and extracted it in our working
-directory. All data are in a subfolder.
+We have created, based on the input data, two tidy datasets that we
+describe here in more detail. To see the steps that we have taken to
+create these datasets from the input data, please see the
+run\_analysis.R script and the analysis.md file that shows the steps
+taken in a markdown file with extensive comments.
 
-### Reading the activity names and feature names
+The two tidy datasets are: - tidyTotalData.txt - tidyMeanData.txt
 
-Now, we will read the activity names first.
+### Description of tidyTotalData
 
-    wd <- getwd()
-    datapath <- file.path(wd, "UCI HAR Dataset" )
+This dataset is created by:
 
-    filename <- "activity_labels.txt"
-    actNames <-read.table(file.path(datapath, filename),col.names = c("ActivityId", "ActivityName"))
+-   joining the three x\_train, y\_train and subject\_train files;
+    similar for the three corresponding test files
+-   merging the test and training data
+-   adding an activity description column to the data
+-   selecting from these data a subset of the features that correspond
+    to a mean or std (see below)
 
-Next, we are going to read the feature names:
+For completeness, we list the columns of the dataset below. For a
+description of most of the variables, we refer to the original
+features\_info.txt and readme.md files, since these features are
+unchanged. These files contain all the relevant information. For newly
+added columns, we describe below the interpretation:
 
-    filename <- "features.txt"
-    features <-read.table(file.path(datapath, filename),col.names = c("VarId", "VarName"))
-    featureNames <- as.character(features$VarName)
+-   ActivityId: 1,..6; see activity\_labels.txt for decoding.
+-   SubjectId: id of the subject; ranges from 1 to 30
+-   ActivityName: see activity\_labels.txt for possible values.
+-   tBodyAcc.mean.X
+-   tBodyAcc.mean.Y
+-   tBodyAcc.mean.Z
+-   tGravityAcc.mean.X
+-   tGravityAcc.mean.Y
+-   tGravityAcc.mean.Z
+-   tBodyAccJerk.mean.X
+-   tBodyAccJerk.mean.Y
+-   tBodyAccJerk.mean.Z
+-   tBodyGyro.mean.X
+-   tBodyGyro.mean.Y
+-   tBodyGyro.mean.Z
+-   tBodyGyroJerk.mean.X
+-   tBodyGyroJerk.mean.Y
+-   tBodyGyroJerk.mean.Z
+-   tBodyAccMag.mean
+-   tGravityAccMag.mean
+-   tBodyAccJerkMag.mean
+-   tBodyGyroMag.mean
+-   tBodyGyroJerkMag.mean
+-   fBodyAcc.mean.X
+-   fBodyAcc.mean.Y
+-   fBodyAcc.mean.Z
+-   fBodyAcc.meanFreq.X
+-   fBodyAcc.meanFreq.Y
+-   fBodyAcc.meanFreq.Z
+-   fBodyAccJerk.mean.X
+-   fBodyAccJerk.mean.Y
+-   fBodyAccJerk.mean.Z
+-   fBodyAccJerk.meanFreq.X
+-   fBodyAccJerk.meanFreq.Y
+-   fBodyAccJerk.meanFreq.Z
+-   fBodyGyro.mean.X
+-   fBodyGyro.mean.Y
+-   fBodyGyro.mean.Z
+-   fBodyGyro.meanFreq.X
+-   fBodyGyro.meanFreq.Y
+-   fBodyGyro.meanFreq.Z
+-   fBodyAccMag.mean
+-   fBodyAccMag.meanFreq
+-   fBodyBodyAccJerkMag.mean
+-   fBodyBodyAccJerkMag.meanFreq
+-   fBodyBodyGyroMag.mean
+-   fBodyBodyGyroMag.meanFreq
+-   fBodyBodyGyroJerkMag.mean
+-   fBodyBodyGyroJerkMag.meanFreq
+-   tBodyAcc.std.X
+-   tBodyAcc.std.Y
+-   tBodyAcc.std.Z
+-   tGravityAcc.std.X
+-   tGravityAcc.std.Y
+-   tGravityAcc.std.Z
+-   tBodyAccJerk.std.X
+-   tBodyAccJerk.std.Y
+-   tBodyAccJerk.std.Z
+-   tBodyGyro.std.X
+-   tBodyGyro.std.Y
+-   tBodyGyro.std.Z
+-   tBodyGyroJerk.std.X
+-   tBodyGyroJerk.std.Y
+-   tBodyGyroJerk.std.Z
+-   tBodyAccMag.std
+-   tGravityAccMag.std
+-   tBodyAccJerkMag.std
+-   tBodyGyroMag.std
+-   tBodyGyroJerkMag.std
+-   fBodyAcc.std.X
+-   fBodyAcc.std.Y
+-   fBodyAcc.std.Z
+-   fBodyAccJerk.std.X
+-   fBodyAccJerk.std.Y
+-   fBodyAccJerk.std.Z
+-   fBodyGyro.std.X
+-   fBodyGyro.std.Y
+-   fBodyGyro.std.Z
+-   fBodyAccMag.std
+-   fBodyBodyAccJerkMag.std
+-   fBodyBodyGyroMag.std
+-   fBodyBodyGyroJerkMag.std
 
-We will now select the subset of features that correspond to a mean or
-st. deviation. We do this by using regular expressions applied to the
-feature names:
+### Description of tidyMeanData
 
-    meanFNames <- featureNames[sapply(featureNames, regexpr, pattern = "mean") > 0]
-    stdFNames <- featureNames[sapply(featureNames, regexpr, pattern = "std") > 0]
-    selectedFNames <- c(meanFNames , stdFNames)
+This dataset is created by taking the tidyTotalData as starting point
+and calculating the mean for each feature, grouped by subject and
+activity. This leads to the following columns (see below). These columns
+are not again described in detail, since most of them are just the mean
+of the columns of the first data set. We refer to the description of
+these columns.
 
-We tidy up the names of the features by removing the "()" in the names:
+-   SubjectId
+-   ActivityId
+-   tBodyAcc.mean.X.avg.avg
+-   tBodyAcc.mean.Y.avg.avg
+-   tBodyAcc.mean.Z.avg.avg
+-   tGravityAcc.mean.X.avg.avg
+-   tGravityAcc.mean.Y.avg.avg
+-   tGravityAcc.mean.Z.avg.avg
+-   tBodyAccJerk.mean.X.avg.avg
+-   tBodyAccJerk.mean.Y.avg.avg
+-   tBodyAccJerk.mean.Z.avg.avg
+-   tBodyGyro.mean.X.avg.avg
+-   tBodyGyro.mean.Y.avg.avg
+-   tBodyGyro.mean.Z.avg.avg
+-   tBodyGyroJerk.mean.X.avg.avg
+-   tBodyGyroJerk.mean.Y.avg.avg
+-   tBodyGyroJerk.mean.Z.avg.avg
+-   tBodyAccMag.mean.avg.avg
+-   tGravityAccMag.mean.avg.avg
+-   tBodyAccJerkMag.mean.avg.avg
+-   tBodyGyroMag.mean.avg.avg
+-   tBodyGyroJerkMag.mean.avg.avg
+-   fBodyAcc.mean.X.avg.avg
+-   fBodyAcc.mean.Y.avg.avg
+-   fBodyAcc.mean.Z.avg.avg
+-   fBodyAcc.meanFreq.X.avg.avg
+-   fBodyAcc.meanFreq.Y.avg.avg
+-   fBodyAcc.meanFreq.Z.avg.avg
+-   fBodyAccJerk.mean.X.avg.avg
+-   fBodyAccJerk.mean.Y.avg.avg
+-   fBodyAccJerk.mean.Z.avg.avg
+-   fBodyAccJerk.meanFreq.X.avg.avg
+-   fBodyAccJerk.meanFreq.Y.avg.avg
+-   fBodyAccJerk.meanFreq.Z.avg.avg
+-   fBodyGyro.mean.X.avg.avg
+-   fBodyGyro.mean.Y.avg.avg
+-   fBodyGyro.mean.Z.avg.avg
+-   fBodyGyro.meanFreq.X.avg.avg
+-   fBodyGyro.meanFreq.Y.avg.avg
+-   fBodyGyro.meanFreq.Z.avg.avg
+-   fBodyAccMag.mean.avg.avg
+-   fBodyAccMag.meanFreq.avg.avg
+-   fBodyBodyAccJerkMag.mean.avg.avg
+-   fBodyBodyAccJerkMag.meanFreq.avg.avg
+-   fBodyBodyGyroMag.mean.avg.avg
+-   fBodyBodyGyroMag.meanFreq.avg.avg
+-   fBodyBodyGyroJerkMag.mean.avg.avg
+-   fBodyBodyGyroJerkMag.meanFreq.avg.avg
+-   tBodyAcc.std.X.avg.avg
+-   tBodyAcc.std.Y.avg.avg
+-   tBodyAcc.std.Z.avg.avg
+-   tGravityAcc.std.X.avg.avg
+-   tGravityAcc.std.Y.avg.avg
+-   tGravityAcc.std.Z.avg.avg
+-   tBodyAccJerk.std.X.avg.avg
+-   tBodyAccJerk.std.Y.avg.avg
+-   tBodyAccJerk.std.Z.avg.avg
+-   tBodyGyro.std.X.avg.avg
+-   tBodyGyro.std.Y.avg.avg
+-   tBodyGyro.std.Z.avg.avg
+-   tBodyGyroJerk.std.X.avg.avg
+-   tBodyGyroJerk.std.Y.avg.avg
+-   tBodyGyroJerk.std.Z.avg.avg
+-   tBodyAccMag.std.avg.avg
+-   tGravityAccMag.std.avg.avg
+-   tBodyAccJerkMag.std.avg.avg
+-   tBodyGyroMag.std.avg.avg
+-   tBodyGyroJerkMag.std.avg.avg
+-   fBodyAcc.std.X.avg.avg
+-   fBodyAcc.std.Y.avg.avg
+-   fBodyAcc.std.Z.avg.avg
+-   fBodyAccJerk.std.X.avg.avg
+-   fBodyAccJerk.std.Y.avg.avg
+-   fBodyAccJerk.std.Z.avg.avg
+-   fBodyGyro.std.X.avg.avg
+-   fBodyGyro.std.Y.avg.avg
+-   fBodyGyro.std.Z.avg.avg
+-   fBodyAccMag.std.avg.avg
+-   fBodyBodyAccJerkMag.std.avg
+-   fBodyBodyGyroMag.std.avg
+-   fBodyBodyGyroJerkMag.std.avg
 
-    tidyFNames <- sub(pattern = "\\(\\)", replacement = "", x = selectedFNames)
-    length(tidyFNames)
-
-    ## [1] 79
-
-We are now left with the following feature names:
-
-    tidyFNames
-
-    ##  [1] "tBodyAcc-mean-X"               "tBodyAcc-mean-Y"              
-    ##  [3] "tBodyAcc-mean-Z"               "tGravityAcc-mean-X"           
-    ##  [5] "tGravityAcc-mean-Y"            "tGravityAcc-mean-Z"           
-    ##  [7] "tBodyAccJerk-mean-X"           "tBodyAccJerk-mean-Y"          
-    ##  [9] "tBodyAccJerk-mean-Z"           "tBodyGyro-mean-X"             
-    ## [11] "tBodyGyro-mean-Y"              "tBodyGyro-mean-Z"             
-    ## [13] "tBodyGyroJerk-mean-X"          "tBodyGyroJerk-mean-Y"         
-    ## [15] "tBodyGyroJerk-mean-Z"          "tBodyAccMag-mean"             
-    ## [17] "tGravityAccMag-mean"           "tBodyAccJerkMag-mean"         
-    ## [19] "tBodyGyroMag-mean"             "tBodyGyroJerkMag-mean"        
-    ## [21] "fBodyAcc-mean-X"               "fBodyAcc-mean-Y"              
-    ## [23] "fBodyAcc-mean-Z"               "fBodyAcc-meanFreq-X"          
-    ## [25] "fBodyAcc-meanFreq-Y"           "fBodyAcc-meanFreq-Z"          
-    ## [27] "fBodyAccJerk-mean-X"           "fBodyAccJerk-mean-Y"          
-    ## [29] "fBodyAccJerk-mean-Z"           "fBodyAccJerk-meanFreq-X"      
-    ## [31] "fBodyAccJerk-meanFreq-Y"       "fBodyAccJerk-meanFreq-Z"      
-    ## [33] "fBodyGyro-mean-X"              "fBodyGyro-mean-Y"             
-    ## [35] "fBodyGyro-mean-Z"              "fBodyGyro-meanFreq-X"         
-    ## [37] "fBodyGyro-meanFreq-Y"          "fBodyGyro-meanFreq-Z"         
-    ## [39] "fBodyAccMag-mean"              "fBodyAccMag-meanFreq"         
-    ## [41] "fBodyBodyAccJerkMag-mean"      "fBodyBodyAccJerkMag-meanFreq" 
-    ## [43] "fBodyBodyGyroMag-mean"         "fBodyBodyGyroMag-meanFreq"    
-    ## [45] "fBodyBodyGyroJerkMag-mean"     "fBodyBodyGyroJerkMag-meanFreq"
-    ## [47] "tBodyAcc-std-X"                "tBodyAcc-std-Y"               
-    ## [49] "tBodyAcc-std-Z"                "tGravityAcc-std-X"            
-    ## [51] "tGravityAcc-std-Y"             "tGravityAcc-std-Z"            
-    ## [53] "tBodyAccJerk-std-X"            "tBodyAccJerk-std-Y"           
-    ## [55] "tBodyAccJerk-std-Z"            "tBodyGyro-std-X"              
-    ## [57] "tBodyGyro-std-Y"               "tBodyGyro-std-Z"              
-    ## [59] "tBodyGyroJerk-std-X"           "tBodyGyroJerk-std-Y"          
-    ## [61] "tBodyGyroJerk-std-Z"           "tBodyAccMag-std"              
-    ## [63] "tGravityAccMag-std"            "tBodyAccJerkMag-std"          
-    ## [65] "tBodyGyroMag-std"              "tBodyGyroJerkMag-std"         
-    ## [67] "fBodyAcc-std-X"                "fBodyAcc-std-Y"               
-    ## [69] "fBodyAcc-std-Z"                "fBodyAccJerk-std-X"           
-    ## [71] "fBodyAccJerk-std-Y"            "fBodyAccJerk-std-Z"           
-    ## [73] "fBodyGyro-std-X"               "fBodyGyro-std-Y"              
-    ## [75] "fBodyGyro-std-Z"               "fBodyAccMag-std"              
-    ## [77] "fBodyBodyAccJerkMag-std"       "fBodyBodyGyroMag-std"         
-    ## [79] "fBodyBodyGyroJerkMag-std"
-
-### Reading the test and training data
-
-The training and test feature data are fixed width files with 16 cols
-per variable. In order to read only the relevant features, we prepare a
-width vector that contains positive and negative widths for variables
-that we want to read and skip respectively.
-
-    widthvector <- 16 * (2 *(featureNames %in% selectedFNames)-1)
-
-Now we will read the three training files:
-
-    path <- file.path(datapath, "Train" )
-    filename <- "X_train.txt"
-    train_raw <- read.fwf(file.path(path, filename), width = widthvector, buffersize = 100, col.names = tidyFNames )
-    filename <- "y_train.txt"
-    train_y <- read.table(file.path(path, filename), col.names =c("ActivityId"))
-    filename <- "subject_train.txt"
-    train_subj <- read.table(file.path(path, filename), col.names = c("SubjectId"))
-
-And we read the three test files:
-
-    path <- file.path(datapath, "Test" )
-    filename <- "X_test.txt"
-    test_raw <-  read.fwf(file.path(path, filename), width = widthvector, buffersize = 100, col.names = tidyFNames  )
-    filename <- "y_test.txt"
-    test_y <- read.table(file.path(path, filename), col.names =c("ActivityId"))
-    filename <- "subject_test.txt"
-    test_subj <- read.table(file.path(path, filename),col.names = c("SubjectId"))
-
-We have given appropriate column names to all the variables: we have
-used the feature names that we created before and we have used
-ActivityId and SubjectId for the variables in the y and subject files
-respectively.
-
-Merging the data
-----------------
-
-We will merge the data by first combining the features and the
-ActivityId and SubjectId variables for both test and train. Subsequently
-we merge the train and test data to one data set. This can be done in
-one statement:
-
-    totaldata <- rbind( cbind(train_raw, train_y, train_subj), cbind(test_raw, test_y, test_subj) )
-
-We will now also join the activity name to the dataset:
-
-    totaldata <- merge(totaldata, actNames, by.x = "ActivityId" , by.y = "ActivityId")
-
-Creating the dataset with mean variables per activity and per subject
----------------------------------------------------------------------
-
-### Calculating the mean per subjectId and ActivityId
-
-We are now in good shape to create a dataset that contains the mean of
-each feature, grouped by subjectId and by ActivityId. We will use the
-aggregate function in R and sort it afterwards. We will show the first 5
-rows and columns.
-
-    cols <- colnames(totaldata)
-    cols <- cols[!cols %in% c("ActivityName","SubjectId")] 
-    meanDataPerActivitySubject <- aggregate(x = totaldata[cols], 
-                      by = list( ActivityName = totaldata$ActivityName, SubjectId = totaldata$SubjectId), 
-                      FUN = mean)
-
-    meanDataPerActivitySubject <- meanDataPerActivitySubject[order(meanDataPerActivitySubject$ActivityName, 
-                                                                   meanDataPerActivitySubject$SubjectId),]
-    meanDataPerActivitySubject[1:5][1:5,]
-
-    ##    ActivityName SubjectId ActivityId tBodyAcc.mean.X tBodyAcc.mean.Y
-    ## 1        LAYING         1          6       0.2215982     -0.04051395
-    ## 7        LAYING         2          6       0.2813734     -0.01815874
-    ## 13       LAYING         3          6       0.2755169     -0.01895568
-    ## 19       LAYING         4          6       0.2635592     -0.01500318
-    ## 25       LAYING         5          6       0.2783343     -0.01830421
-
-### Writing the tidy datasets to files
-
-We will now write the two tidy datasets to files:
-
-    filename <- "tidyMeanData.txt"
-    write.table(x = meanDataPerActivitySubject , filename, quote = F, row.names = F )
-
-    filename <- "tidyTotalData.txt"
-    write.table(x = totaldata , filename, quote = F, row.names = F )
+\`\`\`

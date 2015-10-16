@@ -68,6 +68,11 @@ meanDataPerActivitySubject <- aggregate(x = totaldata[cols],
 
 meanDataPerActivitySubject <- meanDataPerActivitySubject[order(meanDataPerActivitySubject$ActivityName, 
                                                                meanDataPerActivitySubject$SubjectId),]
+#adjusting the columnnames by appending ".avg" to it
+newcolnames <- paste0(colnames(meanDataPerActivitySubject), ".avg")
+n <- length(newcolnames)
+colnames(meanDataPerActivitySubject)[4:n] <- newcolnames[4:n]
+
 #Write this mean dataset to a file
 filename <- "tidyMeanData.txt"
 write.table(x = meanDataPerActivitySubject , filename, quote = F, row.names = F )
@@ -75,5 +80,4 @@ write.table(x = meanDataPerActivitySubject , filename, quote = F, row.names = F 
 #also Write total dataset to a file
 filename <- "tidyTotalData.txt"
 write.table(x = totaldata , filename, quote = F, row.names = F )
-
 
